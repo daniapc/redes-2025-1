@@ -2,7 +2,9 @@ import socket
 
 serverAddressPort   = ("127.0.0.1", 20001)
 
-bufferSize          = 1024
+PAYLOAD_SYZE = 1232
+SEGMENT_LENGTH= PAYLOAD_SYZE+64
+bufferSize  = SEGMENT_LENGTH
 
 UDPClientSocket = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
 
@@ -34,10 +36,43 @@ bytesToSend         = str.encode(msgFromClient)
 
 UDPClientSocket.sendto(bytesToSend, serverAddressPort)
 
+binary_sum = lambda a,b : bin(int(a, 2) + int(b, 2))
+def checksum_op(a, b):
+    sum = binary_sum(a,b)[2:]
+    if len(sum) > 16:
+        sum = sum[-16:]
+        sum = binary_sum(sum,'1')[2:]
+    return sum.zfill(16)
+def invert_bits(a):
+    return ''.join(['1' if bit == '0' else '0' for bit in a])
+
 while (True):
 
     msgFromServer = UDPClientSocket.recvfrom(bufferSize)
 
     msg = "{}".format(msgFromServer[0])
 
-    print(msg)
+    decoded_msg = msgFromServer[0].decode("utf-8")
+
+    bin_text = " ".join(f"{ord(i):08b}" for i in decoded_msg).split(" ")
+    header = bin_text[0:8]
+
+    src_port = int(header[0]+header[1], 2)
+    dst_port = int(header[2]+header[3], 2)
+    seg_lgth = int(header[4]+header[5], 2)
+    hdr_csum = header[6]+header[7]
+
+    payload = bin_text[8:]
+
+    checksum = "0"
+
+    for cur_byte in payload: 
+        checksum = checksum_op(checksum, cur_byte)
+    checksum = invert_bits(checksum)
+
+    valid = checksum == hdr_csum
+
+    print("Valid:", valid)
+    print("Message", msg)
+
+    

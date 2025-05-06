@@ -1,12 +1,13 @@
 import socket
 import os
+import time
 
 localIP     = "127.0.0.1"
 localPort   = 20001
-bufferSize  = 1024
 
 PAYLOAD_SYZE = 1232
 SEGMENT_LENGTH= PAYLOAD_SYZE+64
+bufferSize  = SEGMENT_LENGTH
 
 def bin2text(s): return "".join([chr(int(s[i:i+8],2)) for i in range(0,len(s),8)])
 
@@ -49,7 +50,9 @@ def checksum_op(a, b):
 def invert_bits(a):
     return ''.join(['1' if bit == '0' else '0' for bit in a])
 
-path = os.getcwd() + '/tdp-1/src/'
+path = os.getcwd()
+path = path[:path.index('/redes-2025-1')] + '/redes-2025-1/tdp-1/src/'
+print(path)
 
 comandos_validos = ['GET']
 arquivos_validos = ['txt', 'dat']
@@ -151,6 +154,8 @@ while(True):
 
         bytesToSend =  bin2text(msgToSend).encode('utf-8')
         UDPServerSocket.sendto(bytesToSend, address)
+
+        # time.sleep(1)
 
 
     # Sending a reply to client

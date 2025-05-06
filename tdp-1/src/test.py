@@ -60,7 +60,6 @@ print(''.join(bin_text))
 # def bin2text(s): return "".join([chr(int(x,2)) for x in [s[i:i+8] for i in range(0,len(s), 8)]])
 def bin2text(s): return "".join([chr(int(s[i:i+8],2)) for i in range(0,len(s),8)])
 
-
 print(bin2text(joined_text))
 
 port   = 20001
@@ -92,3 +91,7 @@ def invert_bits(a):
 
 print(invert_bits(sum))
 # print(binary_sum(a,b)[2:])
+
+msg = 'N!\xc3\x86\xc3\xab\x05\x10S/Is it for fear to wet a widow\x19s eye,'
+bin_msg = " ".join(f"{ord(i):08b}" for i in msg).split(" ")
+print(bin_msg)
