@@ -1,8 +1,8 @@
 # @IP_Servidor:Porta_Servidor/nome_do_arquivo.ext).
 # GET @127.0.0.1:20001/test_file.txt
 # requisicao = input()
-requisicao = 'GET @127.0.0.1:20001/test_file.txt'
-# requisicao = 'GET @127.0.0.1:20001/test_file.txt -d s[0:5,7,9]'
+# requisicao = 'GET @127.0.0.1:20001/test_file.txt'
+requisicao = 'GET @127.0.0.1:20001/test_file.txt -d s[:5,7,9,20:]'
 
 comando = requisicao[:requisicao.index('@')-1]
 print(comando)
@@ -23,12 +23,22 @@ if (tem_flag):
     indexes = []
 
     for s in seguimentos:
-        if ':' in s and len(s) == 3:
-            init = int(s.split(':')[0])
-            fin = int(s.split(':')[1])
+        if ':' in s:
+            rvalues = [item for item in s.split(':') if item]
 
-            for i in range (init,fin+1):
-                indexes.append(i)
+            if len(rvalues) == 2:
+                init = int(rvalues[0])
+                fin = int(rvalues[1])
+
+                for i in range (init,fin+1):
+                    indexes.append(i)
+            elif len(rvalues) == 1:
+                if s[0] == ':':
+                    for i in range (0,int(rvalues[0])+1):
+                        indexes.append(i)
+                else:
+                    indexes.append(int(rvalues[0]))
+                    indexes.append(-1)
         else:
             indexes.append(int(s))
 
@@ -41,9 +51,8 @@ path = os.getcwd() + '/tdp-1/src/'
 f = open(path+"/data/test_file.txt")
 text = f.read()[0:100]
 
-def text2bin(s): return '{:b}'.format(int(u'{s}'.encode('utf-8').encode('hex'), 16))
-# bin_text = " ".join(f"{ord(i):08b}" for i in text).split(" ")
-bin_text = text2bin(text)
+# def text2bin(s): return '{:b}'.format(int(u'{s}'.encode('utf-8').encode('hex'), 16))
+bin_text = " ".join(f"{ord(i):08b}" for i in text).split(" ")
 
 joined_text = ''.join(bin_text)
 print(''.join(bin_text))
@@ -53,12 +62,7 @@ def bin2text(s): return "".join([chr(int(s[i:i+8],2)) for i in range(0,len(s),8)
 
 
 print(bin2text(joined_text))
-# bin_text = text.encode("utf-8")
 
-# text = '01101001'
-# print(bin(int(text, base=2)))
-
-# bin_array = ' '.join(map(bin,bytearray(bin_text)))
-
-# # print(len(text))
-# print(bin_array)
+port   = 20001
+bin_port = bin(port)[2:].zfill(16)
+print(bin_port)

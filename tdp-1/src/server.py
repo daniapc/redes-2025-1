@@ -6,8 +6,36 @@ localPort   = 20001
 bufferSize  = 1024
 
 PAYLOAD_SYZE = 1232
+SEGMENT_LENGTH= PAYLOAD_SYZE+64
 
 def bin2text(s): return "".join([chr(int(s[i:i+8],2)) for i in range(0,len(s),8)])
+
+def get_segmentos_descarte(requisicao):
+    seguimentos = requisicao[requisicao.index(' -d s[')+6:requisicao.index(']')]
+    # print(seguimentos)
+    seguimentos = seguimentos.split(',')
+    indexes = []
+
+    for s in seguimentos:
+        if ':' in s:
+            rvalues = [item for item in s.split(':') if item]
+
+            if len(rvalues) == 2:
+                init = int(rvalues[0])
+                fin = int(rvalues[1])
+
+                for i in range (init,fin+1):
+                    indexes.append(i)
+            elif len(rvalues) == 1:
+                if s[0] == ':':
+                    for i in range (0,int(rvalues[0])+1):
+                        indexes.append(i)
+                else:
+                    indexes.append(int(rvalues[0]))
+                    indexes.append(-1)
+        else:
+            indexes.append(int(s))
+    return indexes
 
 path = os.getcwd() + '/tdp-1/src/'
 
@@ -41,6 +69,8 @@ while(True):
 
     clientMsg = message.decode("utf-8")
     clientIP  = "Client IP Address:{}".format(address)
+    clientPort = address[1]
+    print(clientPort)
     
     print("Message from Client:{}".format(message))
 
@@ -58,6 +88,10 @@ while(True):
     print(extensao_arquivo)
 
     print(clientIP)
+
+    if tem_flag:
+        indexes = get_segmentos_descarte(requisicao=clientMsg)
+        print(indexes)
 
     if extensao_arquivo not in arquivos_validos or comando not in comandos_validos:
         print('Falha na requisição')
@@ -78,8 +112,17 @@ while(True):
     cursor = 0
     text_lenght = len(bin_text)
 
+    # segment loop
     while cursor < text_lenght:
         payload = ""
+
+        src_bin_port = bin(localPort)[2:].zfill(16)
+        dst_bin_port = bin(clientPort)[2:].zfill(16)
+        seg_bin_lgth = bin(SEGMENT_LENGTH)[2:].zfill(16)
+        checksum_bin = bin(0)[2:].zfill(16)
+
+        payload += src_bin_port+dst_bin_port+seg_bin_lgth+checksum_bin
+
         for i in range(PAYLOAD_SYZE):
             if cursor >= text_lenght:
                 break

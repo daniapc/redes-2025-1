@@ -34,8 +34,10 @@ bytesToSend         = str.encode(msgFromClient)
 
 UDPClientSocket.sendto(bytesToSend, serverAddressPort)
 
-msgFromServer = UDPClientSocket.recvfrom(bufferSize)
+while (True):
 
-msg = "Message from Server {}".format(msgFromServer[0])
+    msgFromServer = UDPClientSocket.recvfrom(bufferSize)
 
-print(msg)
+    msg = "{}".format(msgFromServer[0])
+
+    print(msg)
