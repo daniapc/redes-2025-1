@@ -37,6 +37,18 @@ def get_segmentos_descarte(requisicao):
             indexes.append(int(s))
     return indexes
 
+binary_sum = lambda a,b : bin(int(a, 2) + int(b, 2))
+def checksum_op(a, b):
+    sum = binary_sum(a,b)[2:]
+    if len(sum) > 16:
+        sum = sum[-16:]
+        sum = binary_sum(sum,'1')[2:]
+        
+    return sum.zfill(16)
+
+def invert_bits(a):
+    return ''.join(['1' if bit == '0' else '0' for bit in a])
+
 path = os.getcwd() + '/tdp-1/src/'
 
 comandos_validos = ['GET']
@@ -114,26 +126,33 @@ while(True):
 
     # segment loop
     while cursor < text_lenght:
+
         payload = ""
-
-        src_bin_port = bin(localPort)[2:].zfill(16)
-        dst_bin_port = bin(clientPort)[2:].zfill(16)
-        seg_bin_lgth = bin(SEGMENT_LENGTH)[2:].zfill(16)
-        checksum_bin = bin(0)[2:].zfill(16)
-
-        payload += src_bin_port+dst_bin_port+seg_bin_lgth+checksum_bin
+        checksum = "0"
 
         for i in range(PAYLOAD_SYZE):
             if cursor >= text_lenght:
                 break
 
             cur_byte = bin_text[cursor][-8:]
+
+            checksum = checksum_op(checksum, cur_byte)
             payload += cur_byte
         
             cursor += 1
 
-        bytesToSend =  bin2text( payload).encode('utf-8')
+        src_bin_port = bin(localPort)[2:].zfill(16)
+        dst_bin_port = bin(clientPort)[2:].zfill(16)
+        seg_bin_lgth = bin(SEGMENT_LENGTH)[2:].zfill(16)
+        checksum = invert_bits(checksum)
+
+        header = src_bin_port + dst_bin_port + seg_bin_lgth+ checksum
+        msgToSend = header + payload
+
+        bytesToSend =  bin2text(msgToSend).encode('utf-8')
         UDPServerSocket.sendto(bytesToSend, address)
+
+
     # Sending a reply to client
 
     # UDPServerSocket.sendto(bytesToSend, address)

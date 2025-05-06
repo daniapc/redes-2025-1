@@ -8,5 +8,5 @@ Código base para conexão:
 https://pythontic.com/modules/socket/udp-client-server-example
 
 Checksum:
-https://www.youtube.com/watch?v=xCwR0os_wz8
+https://www.youtube.com/watch?v=rYVHBICiiEc
 https://www.geeksforgeeks.org/python-program-to-add-two-binary-numbers/

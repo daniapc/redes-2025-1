@@ -66,3 +66,29 @@ print(bin2text(joined_text))
 port   = 20001
 bin_port = bin(port)[2:].zfill(16)
 print(bin_port)
+
+print(bin_text)
+
+binary_sum = lambda a,b : bin(int(a, 2) + int(b, 2))
+
+a = bin_text[0]
+a = '11111111'
+
+b = bin_text[1]
+
+print(a)
+print(b)
+
+sum = binary_sum(a,b)[2:]
+print(sum)
+if len(sum) > 8:
+    sum = sum[-8:]
+    print(sum)
+    sum = binary_sum(sum,'1')[2:].zfill(8)
+    print(sum)
+
+def invert_bits(a):
+    return ''.join(['1' if bit == '0' else '0' for bit in a])
+
+print(invert_bits(sum))
+# print(binary_sum(a,b)[2:])
