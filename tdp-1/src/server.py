@@ -6,7 +6,7 @@ localPort   = 20001
 
 bufferSize  = 1024
 
-msgFromServer       = "Hello UDP Client"
+msgFromServer       = "Mensagem recebida com sucesso"
 
 bytesToSend         = str.encode(msgFromServer)
 
@@ -30,10 +30,22 @@ while(True):
 
     address = bytesAddressPair[1]
 
-    clientMsg = "Message from Client:{}".format(message)
+    clientMsg = message.decode("utf-8")
     clientIP  = "Client IP Address:{}".format(address)
     
-    print(clientMsg)
+    print("Message from Client:{}".format(message))
+
+    comando = clientMsg[:clientMsg.index('@')-1]
+    print('Comando:', comando)
+    servidor = clientMsg[clientMsg.index('@')+1:clientMsg.index(':')]
+    print('Servidor:', servidor)
+    porta = clientMsg[clientMsg.index(':')+1:clientMsg.index('/')]
+    print('Porta:', porta)
+    tem_flag = clientMsg.find(' -d s[') != -1
+    print('Flag:', tem_flag)
+    arquivo = clientMsg[clientMsg.index('/')+1:] if not(tem_flag) else clientMsg[clientMsg.index('/')+1:clientMsg.index(' -d s[')]
+    print('Arquivo:', arquivo)
+
     print(clientIP)
 
     # Sending a reply to client
