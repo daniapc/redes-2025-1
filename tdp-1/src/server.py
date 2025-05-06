@@ -52,7 +52,6 @@ def invert_bits(a):
 
 path = os.getcwd()
 path = path[:path.index('/redes-2025-1')] + '/redes-2025-1/tdp-1/src/'
-print(path)
 
 comandos_validos = ['GET']
 arquivos_validos = ['txt', 'dat']
@@ -72,6 +71,10 @@ UDPServerSocket.bind((localIP, localPort))
 
 print("UDP server up and listening")
 
+src_bin_port = ''.zfill(16)
+dst_bin_port = ''.zfill(16)
+seg_bin_lgth = bin(SEGMENT_LENGTH)[2:].zfill(16)
+
 # Listen for incoming datagrams
 
 while(True):
@@ -85,7 +88,7 @@ while(True):
     clientMsg = message.decode("utf-8")
     clientIP  = "Client IP Address:{}".format(address)
     clientPort = address[1]
-    print(clientPort)
+    # print(clientPort)
     
     print("Message from Client:{}".format(message))
 
@@ -98,38 +101,41 @@ while(True):
     tem_flag = clientMsg.find(' -d s[') != -1
     print('Flag:', tem_flag)
     arquivo = clientMsg[clientMsg.index('/')+1:] if not(tem_flag) else clientMsg[clientMsg.index('/')+1:clientMsg.index(' -d s[')]
-    print('Arquivo:', arquivo)
+    # print('Arquivo:', arquivo)
     extensao_arquivo = arquivo[arquivo.index('.')+1:]
-    print(extensao_arquivo)
+    # print(extensao_arquivo)
 
     print(clientIP)
 
     if tem_flag:
-        indexes = get_segmentos_descarte(requisicao=clientMsg)
-        print(indexes)
+        desc_indexes = get_segmentos_descarte(requisicao=clientMsg)
+        desc_indexes.sort()
+        print(desc_indexes)
 
     if extensao_arquivo not in arquivos_validos or comando not in comandos_validos:
         print('Falha na requisição')
         UDPServerSocket.sendto(str.encode(errorMsg), address)
         continue
 
-    file_path = path+"/data/test_file.txt"
+    file_path = path+"/data/" + arquivo
     
     if not(os.path.isfile(file_path)):
         print('Falha na requisição')
         UDPServerSocket.sendto(str.encode(errorMsg), address)
         continue
 
-    f =  open(path+"/data/test_file.txt")
-    text = f.read()[0:10000]
+    f =  open(file_path)
+    # text = f.read()[0:10000]
+    text = f.read()
     bin_text = " ".join(f"{ord(i):08b}" for i in text).split(" ")
 
     cursor = 0
     text_lenght = len(bin_text)
 
     # segment loop
-    while cursor < text_lenght:
+    seg = 0
 
+    while cursor < text_lenght:
         payload = ""
         checksum = "0"
 
@@ -143,20 +149,53 @@ while(True):
             payload += cur_byte
         
             cursor += 1
+        
+        if seg in desc_indexes or (-1 in desc_indexes and seg >= desc_indexes[len(desc_indexes)-1]):
+            payload = ''.zfill(8*PAYLOAD_SYZE)
 
+        # calcula headers
         src_bin_port = bin(localPort)[2:].zfill(16)
         dst_bin_port = bin(clientPort)[2:].zfill(16)
         seg_bin_lgth = bin(SEGMENT_LENGTH)[2:].zfill(16)
         checksum = invert_bits(checksum)
 
+        # constroi msg
         header = src_bin_port + dst_bin_port + seg_bin_lgth+ checksum
         msgToSend = header + payload
 
+        #envia msg
         bytesToSend =  bin2text(msgToSend).encode('utf-8')
         UDPServerSocket.sendto(bytesToSend, address)
 
-        # time.sleep(1)
+        #espera enviar confirmação de segmento
+        bytesAddressPair = UDPServerSocket.recvfrom(bufferSize)
 
+        message = bytesAddressPair[0]
+        clientMsg = message.decode("utf-8")
+
+        #pega o segmento para confirmar se está certo
+        client_seg = clientMsg[clientMsg.index('-n s[') + 5:clientMsg.index(']')]
+
+        if seg == int(client_seg):
+            seg += 1
+        else:
+            print('Falha na requisição')
+            UDPServerSocket.sendto(str.encode(errorMsg), address)
+            continue
+
+    #manda finalizar (payload de zeros com checksum de zeros)
+    header = src_bin_port + dst_bin_port + seg_bin_lgth+''.zfill(16)
+    msgToSend = header + ''.zfill(8*PAYLOAD_SYZE)
+    bytesToSend =  bin2text(msgToSend).encode('utf-8')
+    UDPServerSocket.sendto(bytesToSend, address)
+
+    bytesAddressPair = UDPServerSocket.recvfrom(bufferSize)
+    message = bytesAddressPair[0]
+    clientMsg = message.decode("utf-8")
+    client_seg = clientMsg[clientMsg.index('-n s[') + 5:clientMsg.index(']')]
+
+    if seg == int(client_seg):
+        print("Requisição de arquivo realizada com sucesso!")
 
     # Sending a reply to client
 

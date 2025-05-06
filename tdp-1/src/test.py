@@ -95,3 +95,8 @@ print(invert_bits(sum))
 msg = 'N!\xc3\x86\xc3\xab\x05\x10S/Is it for fear to wet a widow\x19s eye,'
 bin_msg = " ".join(f"{ord(i):08b}" for i in msg).split(" ")
 print(bin_msg)
+
+req = 'GET @127.0.0.1:20001/ -n s['+ str(1) + ']'
+
+seg = req[req.index('-n s[') + 5:req.index(']')]
+print(seg)
