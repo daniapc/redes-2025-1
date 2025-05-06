@@ -1,8 +1,12 @@
 Especificação do trabalho:
 https://pessoal.dainf.ct.utfpr.edu.br/maurofonseca/doku.php?id=cursos:icsr30:trab2&authuser=1#implementacao_de_transferencia_de_arquivos_confiavel_sobre_udp_com_sockets
+
 Payload size:
 https://www.netmeister.org/blog/dns-size.html
+
 Código base para conexão:
 https://pythontic.com/modules/socket/udp-client-server-example
+
 Checksum:
 https://www.youtube.com/watch?v=xCwR0os_wz8
+https://www.geeksforgeeks.org/python-program-to-add-two-binary-numbers/
