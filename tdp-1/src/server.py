@@ -110,7 +110,7 @@ while(True):
     if tem_flag:
         desc_indexes = get_segmentos_descarte(requisicao=clientMsg)
         desc_indexes.sort()
-        print(desc_indexes)
+        # print(desc_indexes)
 
     if extensao_arquivo not in arquivos_validos or comando not in comandos_validos:
         print('Falha na requisição')
