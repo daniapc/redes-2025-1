@@ -102,26 +102,40 @@ while(True):
     print('Flag:', tem_flag)
     arquivo = clientMsg[clientMsg.index('/')+1:] if not(tem_flag) else clientMsg[clientMsg.index('/')+1:clientMsg.index(' -d s[')]
     # print('Arquivo:', arquivo)
-    extensao_arquivo = arquivo[arquivo.index('.')+1:]
+    # extensao_arquivo = arquivo[arquivo.index('.')+1:]
     # print(extensao_arquivo)
 
     print(clientIP)
 
+    src_bin_port = bin(localPort)[2:].zfill(16)
+    dst_bin_port = bin(clientPort)[2:].zfill(16)
+    seg_bin_lgth = bin(SEGMENT_LENGTH)[2:].zfill(16)
+    base_header = src_bin_port + dst_bin_port + seg_bin_lgth
+
+    desc_indexes = []
     if tem_flag:
         desc_indexes = get_segmentos_descarte(requisicao=clientMsg)
         desc_indexes.sort()
         # print(desc_indexes)
 
-    if extensao_arquivo not in arquivos_validos or comando not in comandos_validos:
-        print('Falha na requisição')
-        UDPServerSocket.sendto(str.encode(errorMsg), address)
+    if comando not in comandos_validos:
+        payload = 'Falha na requisição: comando inválido'
+        print(payload)
+        bin_payload = "".join(f"{ord(i):08b}" for i in payload)
+        msg = base_header + '111'.zfill(16) + bin_payload.zfill(PAYLOAD_SYZE)
+        UDPServerSocket.sendto(bin2text(msg).encode('utf-8'), address)
+        UDPServerSocket.recvfrom(bufferSize)
         continue
 
     file_path = path+"/data/" + arquivo
     
     if not(os.path.isfile(file_path)):
-        print('Falha na requisição')
-        UDPServerSocket.sendto(str.encode(errorMsg), address)
+        payload = 'Falha na requisição: arquivo inexistente'
+        print(payload)
+        bin_payload = "".join(f"{ord(i):08b}" for i in payload)
+        msg = base_header + '111'.zfill(16) + bin_payload.zfill(PAYLOAD_SYZE)
+        UDPServerSocket.sendto(bin2text(msg).encode('utf-8'), address)
+        UDPServerSocket.recvfrom(bufferSize)
         continue
 
     f =  open(file_path)
@@ -154,13 +168,10 @@ while(True):
             payload = ''.zfill(8*PAYLOAD_SYZE)
 
         # calcula headers
-        src_bin_port = bin(localPort)[2:].zfill(16)
-        dst_bin_port = bin(clientPort)[2:].zfill(16)
-        seg_bin_lgth = bin(SEGMENT_LENGTH)[2:].zfill(16)
         checksum = invert_bits(checksum)
 
         # constroi msg
-        header = src_bin_port + dst_bin_port + seg_bin_lgth+ checksum
+        header = base_header + checksum
         msgToSend = header + payload
 
         #envia msg

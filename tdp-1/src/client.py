@@ -21,6 +21,8 @@ def checksum_op(a, b):
     return sum.zfill(16)
 def invert_bits(a):
     return ''.join(['1' if bit == '0' else '0' for bit in a])
+def bin2text(s): return "".join([chr(int(s[i:i+8],2)) for i in range(0,len(s),8)])
+
 
 while True:
     print("-------------------------------------------------------")
@@ -66,7 +68,6 @@ while True:
         requisicao ='GET @127.0.0.1:20001/ -n s['+ str(seg) + ']'
         msgFromClient       = requisicao
         bytesToSend         = str.encode(msgFromClient)
-        print(requisicao)
         UDPClientSocket.sendto(bytesToSend, serverAddressPort)
 
         msgFromServer = UDPClientSocket.recvfrom(bufferSize)
@@ -83,6 +84,7 @@ while True:
         seg_lgth = int(header[4]+header[5], 2)
         hdr_csum = header[6]+header[7]
 
+        # checksum de zeros significa que finalizou
         if hdr_csum == ''.zfill(16):
             print("-------------------------------------------------------")
             print("Requisição realizada com sucesso. Arquivo salvo em " + path + "out/client_file.txt")
@@ -100,14 +102,20 @@ while True:
         valid = checksum == hdr_csum
 
         if not(valid):
+            # Se o payload for inválido com o checksum errado, significa que o segmento foi simplesmente descartado.
             if binary_sum(''.join(payload),'0')[2:] == '0':
                 seg += 1
+                print(requisicao)
+                print('Segmento descartado.')
                 print("-------------------------------------------------------")
                 continue
+            # Se o payload não for de zeros, a mensagem de erro aparece
             else:
-                print('Erro na requisição')
+                error_msg = list(filter(('00000000').__ne__, payload))
+                print(bin2text(''.join(error_msg)))
                 break
 
+        print(requisicao)
         print("Source port:", src_port)
         print("Destin port:", dst_port)
         print("Segment Lenght:", seg_lgth)

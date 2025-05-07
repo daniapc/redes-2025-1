@@ -52,7 +52,7 @@ f = open(path+"/data/test_file.txt")
 text = f.read()[0:100]
 
 # def text2bin(s): return '{:b}'.format(int(u'{s}'.encode('utf-8').encode('hex'), 16))
-bin_text = " ".join(f"{ord(i):08b}" for i in text).split(" ")
+bin_text = "".join(f"{ord(i):08b}" for i in text).split(" ")
 
 joined_text = ''.join(bin_text)
 print(''.join(bin_text))
