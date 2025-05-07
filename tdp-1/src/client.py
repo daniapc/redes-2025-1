@@ -11,6 +11,7 @@ path = os.getcwd()
 path = path[:path.index('/redes-2025-1')] + '/redes-2025-1/tdp-1/src/'
 
 UDPClientSocket = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
+UDPClientSocket.settimeout(10)
 
 binary_sum = lambda a,b : bin(int(a, 2) + int(b, 2))
 def checksum_op(a, b):
@@ -26,16 +27,7 @@ def bin2text(s): return "".join([chr(int(s[i:i+8],2)) for i in range(0,len(s),8)
 
 while True:
     print("-------------------------------------------------------")
-    print("Digita ae a Requisição")
-
-    # @IP_Servidor:Porta_Servidor/nome_do_arquivo.ext).
-    # GET @127.0.0.1:20001/test_file.txt
-    # GET @127.0.0.1:20001/test_file.txt -d s[0:5,7,9]
-
-    # requisicao ='GET @127.0.0.1:20001/Metamorphosis.txt -d s[3:5,7,9,20:]'
-    # requisicao ='GET @127.0.0.1:20001/Metamorphosis.txt -d s[:5,7,9,20:]'
-    # requisicao ='GET @127.0.0.1:20001/Dickens.txt -d s[:5,7,9]'
-    # requisicao ='GET @127.0.0.1:20001/Shakespeare.txt -d s[0:5,7,9]'
+    print("Digita ae a requisição:")
     requisicao = input()
 
     print("-------------------------------------------------------")
@@ -70,7 +62,11 @@ while True:
         bytesToSend         = str.encode(msgFromClient)
         UDPClientSocket.sendto(bytesToSend, serverAddressPort)
 
-        msgFromServer = UDPClientSocket.recvfrom(bufferSize)
+        try:
+            msgFromServer = UDPClientSocket.recvfrom(bufferSize)
+        except Exception as e:
+            print('Requisição expirada')
+            break
 
         msg = "{}".format(msgFromServer[0])
 
@@ -86,7 +82,6 @@ while True:
 
         # checksum de zeros significa que finalizou
         if hdr_csum == ''.zfill(16):
-            print("-------------------------------------------------------")
             print("Requisição realizada com sucesso. Arquivo salvo em " + path + "out/client_file.txt")
             break
 

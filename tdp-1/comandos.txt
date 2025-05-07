@@ -1,0 +1,11 @@
+exemplos sem descarte
+GET @127.0.0.1:20001/Dickens.txt
+GET @127.0.0.1:20001/Shakespeare.txt
+exemplos com descarte
+GET @127.0.0.1:20001/Metamorphosis.txt -d s[3:5,7,9,20:]
+GET @127.0.0.1:20001/Metamorphosis.txt -d s[:2,20:]
+
+erro de comando
+PUT @127.0.0.1:20001/Metamorphosis.txt
+erro de arquivo
+GET @127.0.0.1:20001/Metamorfosis.txt
