@@ -10,10 +10,12 @@ serversocket.listen(5) # become a server socket, maximum 5 connections
 def handle_client(conn, addr):
     request = conn.recv(1024).decode()
 
+    print(request)
+
     try:
         path = request.split(' ')[1]
         if path == '/':
-            path = '/Instagram.html'
+            path = '/index.html'
         filepath = 'arquivos' + path
 
         if not os.path.exists(filepath):
