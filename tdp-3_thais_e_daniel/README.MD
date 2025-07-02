@@ -32,3 +32,9 @@ O servidor é capaz de:
    ```bash
    http://localhost:8089/escreva-a-pagina.html
    ```
+
+## Demonstração em Vídeo
+
+Para ver o funcionamento completo do servidor HTTP, assista ao vídeo de demonstração no link abaixo:
+
+🎥 **[Clique aqui para assistir no Google Drive](https://drive.google.com/file/d/1Yk8IZjV3H2XW5VBye0oQolkwNiyEyGqx/view?usp=sharing)**
