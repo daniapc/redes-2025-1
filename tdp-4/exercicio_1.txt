@@ -1,0 +1,83 @@
+Switch>
+Switch>ENA
+Switch#conf t
+Enter configuration commands, one per line.  End with CNTL/Z.
+Switch(config)#vlan 2
+Switch(config-vlan)#name Professores
+Switch(config-vlan)#exit
+Switch(config)#vlan 3
+Switch(config-vlan)#name Alunos
+Switch(config-vlan)#exit
+Switch(config)#interface range fa0/1 - 2
+Switch(config-if-range)#switchport mode access
+Switch(config-if-range)#switchport access vlan 2
+Switch(config-if-range)#exit
+Switch(config)#interface range fa0/3 - 4
+Switch(config-if-range)#switchport mode access
+Switch(config-if-range)#switchport access vlan 3
+Switch(config-if-range)#exit
+Switch(config)#exit
+Switch#
+%SYS-5-CONFIG_I: Configured from console by console
+ena
+Switch#show vlan brief
+
+VLAN Name                             Status    Ports
+---- -------------------------------- --------- -------------------------------
+1    default                          active    Fa0/5, Fa0/6, Fa0/7, Fa0/8
+                                                Fa0/9, Fa0/10, Fa0/11, Fa0/12
+                                                Fa0/13, Fa0/14, Fa0/15, Fa0/16
+                                                Fa0/17, Fa0/18, Fa0/19, Fa0/20
+                                                Fa0/21, Fa0/22, Fa0/23, Fa0/24
+                                                Gig0/1, Gig0/2
+2    Professores                      active    Fa0/1, Fa0/2
+3    Alunos                           active    Fa0/3, Fa0/4
+1002 fddi-default                     active    
+1003 token-ring-default               active    
+1004 fddinet-default                  active    
+1005 trnet-default                    active    
+Switch#
+Switch#configure terminal
+Enter configuration commands, one per line.  End with CNTL/Z.
+Switch(config)#interface FastEthernet0/1
+Switch(config-if)#
+Switch(config-if)#exit
+Switch(config)#interface FastEthernet0/2
+Switch(config-if)#
+Switch(config-if)#exit
+Switch(config)#interface FastEthernet0/3
+Switch(config-if)#
+Switch(config-if)#exit
+Switch(config)#interface FastEthernet0/4
+Switch(config-if)#
+Switch(config-if)#exit
+Switch(config)#
+Switch(config)#
+
+C:\>ping 192.168.10.11
+
+Pinging 192.168.10.11 with 32 bytes of data:
+
+Reply from 192.168.10.11: bytes=32 time<1ms TTL=128
+Reply from 192.168.10.11: bytes=32 time<1ms TTL=128
+Reply from 192.168.10.11: bytes=32 time<1ms TTL=128
+Reply from 192.168.10.11: bytes=32 time<1ms TTL=128
+
+Ping statistics for 192.168.10.11:
+    Packets: Sent = 4, Received = 4, Lost = 0 (0% loss),
+Approximate round trip times in milli-seconds:
+    Minimum = 0ms, Maximum = 0ms, Average = 0ms
+
+C:\>ping 192.168.20.10
+
+Pinging 192.168.20.10 with 32 bytes of data:
+
+Request timed out.
+Request timed out.
+Request timed out.
+Request timed out.
+
+Ping statistics for 192.168.20.10:
+    Packets: Sent = 4, Received = 0, Lost = 4 (100% loss),
+
+C:\>

@@ -1,0 +1,203 @@
+// Divida os switch em 2 VLANs.
+// Professores: VLAN 1 (portas 1 e 2)
+// Alunos: VLAN 2 (portas 3 e 4)
+// apenas copiei e colei com outros nomes nesse processo e deu certo
+
+// Faça os switches se comunicarem através de uma porta Trunk (Sem roteador.)
+// em cada switch:
+ena
+Switch#configure terminal
+Enter configuration commands, one per line.  End with CNTL/Z.
+Switch(config)#int f0/05
+Switch(config-if)#witchport mode trunk
+                  ^
+% Invalid input detected at '^' marker.
+	
+Switch(config-if)#switchport mode trunk
+Switch(config-if)#end
+Switch#
+%SYS-5-CONFIG_I: Configured from console by console
+
+// Teste utilizando o ping para verificar a comunicação entre máquinas
+
+C:\>ping 192.168.10.20
+
+Pinging 192.168.10.20 with 32 bytes of data:
+
+Reply from 192.168.10.20: bytes=32 time<1ms TTL=128
+Reply from 192.168.10.20: bytes=32 time<1ms TTL=128
+Reply from 192.168.10.20: bytes=32 time<1ms TTL=128
+Reply from 192.168.10.20: bytes=32 time<1ms TTL=128
+
+Ping statistics for 192.168.10.20:
+    Packets: Sent = 4, Received = 4, Lost = 0 (0% loss),
+Approximate round trip times in milli-seconds:
+    Minimum = 0ms, Maximum = 0ms, Average = 0ms
+
+C:\>ping 192.168.10.21
+
+Pinging 192.168.10.21 with 32 bytes of data:
+
+Reply from 192.168.10.21: bytes=32 time<1ms TTL=128
+Reply from 192.168.10.21: bytes=32 time<1ms TTL=128
+Reply from 192.168.10.21: bytes=32 time<1ms TTL=128
+Reply from 192.168.10.21: bytes=32 time=11ms TTL=128
+
+Ping statistics for 192.168.10.21:
+    Packets: Sent = 4, Received = 4, Lost = 0 (0% loss),
+Approximate round trip times in milli-seconds:
+    Minimum = 0ms, Maximum = 11ms, Average = 2ms
+
+C:\>ping 192.168.20.21
+
+Pinging 192.168.20.21 with 32 bytes of data:
+
+Request timed out.
+
+Ping statistics for 192.168.20.21:
+    Packets: Sent = 2, Received = 0, Lost = 2 (100% loss),
+
+Control-C
+^C
+C:\>ping 192.168.20.11
+
+Pinging 192.168.20.11 with 32 bytes of data:
+
+Request timed out.
+
+Ping statistics for 192.168.20.11:
+    Packets: Sent = 2, Received = 0, Lost = 2 (100% loss),
+
+Control-C
+^C
+C:\>
+
+// Faça as VLANS se comunicarem através de um roteador
+// Teste utilizando o ping para verificar a comunicação entre máquinas
+// VLAN1 com VLAN1 (No mesmo switch)( Comunica)
+// VLAN1 com VLAN2 (No mesmo switch)( Comunica)
+// VLAN1 com VLAN1 (Em switchs diferentes)( Comunica)
+// VLAN1 com VLAN2 (Em switchs diferentes)( Comunica)
+
+Switch#CONF T
+Enter configuration commands, one per line.  End with CNTL/Z.
+Switch(config)#INT F0/05
+Switch(config-if)#switchport MODE trunk 
+	
+Switch(config-if)#END
+Switch#
+%SYS-5-CONFIG_I: Configured from console by console
+WR
+Building configuration...
+[OK]
+
+Switch#CONF T
+Enter configuration commands, one per line.  End with CNTL/Z.
+Switch(config)#INT F0/05
+Switch(config-if)#switchport MODE trunk 
+Switch(config-if)#END
+Switch#
+%SYS-5-CONFIG_I: Configured from console by console
+WR
+Building configuration...
+[OK]
+Switch#
+
+Router>ena
+Router#conf t
+Enter configuration commands, one per line.  End with CNTL/Z.
+Router(config)#int f0/0
+Router(config)#int f0/0
+Router(config-if)#ip address 192.168.10.1 255.255.255.0 na direção do switch 1 tem ip 192.168.10.x
+Router(config-if)#no shutdown
+
+Router(config-if)#
+%LINK-5-CHANGED: Interface FastEthernet0/0, changed state to up
+
+%LINEPROTO-5-UPDOWN: Line protocol on Interface FastEthernet0/0, changed state to up
+
+Router(config-if)#int f0/1
+Router(config-if)#ip address 192.168.20.1 255.255.255.0 //na direção do switch 2 tem ip 192.168.20.x
+Router(config-if)#no shutdown
+
+Router(config-if)#
+%LINK-5-CHANGED: Interface FastEthernet0/1, changed state to up
+
+%LINEPROTO-5-UPDOWN: Line protocol on Interface FastEthernet0/1, changed state to up
+
+Router(config-if)#exit
+Router(config)#exit
+Router#
+%SYS-5-CONFIG_I: Configured from console by console
+wr
+Building configuration...
+[OK]
+Router#
+
+//VLAN1 com VLAN1 (No mesmo switch) 192.168.10.2 -> 192.168.10.3
+
+C:\>ping 192.168.10.3
+
+Pinging 192.168.10.3 with 32 bytes of data:
+
+Reply from 192.168.10.3: bytes=32 time<1ms TTL=128
+Reply from 192.168.10.3: bytes=32 time<1ms TTL=128
+Reply from 192.168.10.3: bytes=32 time=1ms TTL=128
+Reply from 192.168.10.3: bytes=32 time<1ms TTL=128
+
+Ping statistics for 192.168.10.3:
+    Packets: Sent = 4, Received = 4, Lost = 0 (0% loss),
+Approximate round trip times in milli-seconds:
+    Minimum = 0ms, Maximum = 1ms, Average = 0ms
+
+C:\>
+
+//VLAN1 com VLAN2 (No mesmo switch) 192.168.10.2 -> 192.168.10.4
+
+C:\>ping 192.168.10.4
+
+Pinging 192.168.10.4 with 32 bytes of data:
+
+Request timed out.
+Request timed out.
+Request timed out.
+Request timed out.
+
+Ping statistics for 192.168.10.4:
+    Packets: Sent = 4, Received = 0, Lost = 4 (100% loss),
+
+C:\>
+
+//VLAN1 com VLAN1 (Em switchs diferentes) 192.168.10.2 -> 192.168.20.2
+C:\>ping 192.168.20.2
+
+Pinging 192.168.20.2 with 32 bytes of data:
+
+Reply from 192.168.20.2: bytes=32 time<1ms TTL=127
+Reply from 192.168.20.2: bytes=32 time<1ms TTL=127
+Reply from 192.168.20.2: bytes=32 time=1ms TTL=127
+Reply from 192.168.20.2: bytes=32 time<1ms TTL=127
+
+Ping statistics for 192.168.20.2:
+    Packets: Sent = 4, Received = 4, Lost = 0 (0% loss),
+Approximate round trip times in milli-seconds:
+    Minimum = 0ms, Maximum = 1ms, Average = 0ms
+
+C:\>
+
+//VLAN1 com VLAN2 (Em switchs diferentes) 192.168.10.2 -> 192.168.20.4
+
+C:\>ping 192.168.20.4
+
+Pinging 192.168.20.4 with 32 bytes of data:
+
+Request timed out.
+Request timed out.
+Request timed out.
+Request timed out.
+
+Ping statistics for 192.168.20.4:
+    Packets: Sent = 4, Received = 0, Lost = 4 (100% loss),
+
+C:\>
+
